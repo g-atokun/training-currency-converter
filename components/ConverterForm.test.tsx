@@ -26,6 +26,7 @@ describe('ConverterForm', () => {
     onFromCurrencyChange: jest.fn(),
     onToCurrencyChange: jest.fn(),
     onSwap: jest.fn(),
+    onRefresh: jest.fn(),
   };
 
   beforeEach(() => {
@@ -149,5 +150,24 @@ describe('ConverterForm', () => {
     
     expect(screen.getByPlaceholderText('Enter amount')).toBeInTheDocument();
     expect(screen.queryByText('Converted Amount')).not.toBeInTheDocument();
+  });
+
+  it('should render RefreshButton in the form', () => {
+    render(<ConverterForm {...defaultProps} />);
+    expect(screen.getByRole('button', { name: /refresh rates/i })).toBeInTheDocument();
+  });
+
+  it('should call onRefresh when refresh button is clicked', async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    render(<ConverterForm {...defaultProps} />);
+    const refreshButton = screen.getByRole('button', { name: /refresh rates/i });
+    await user.click(refreshButton);
+
+    expect(defaultProps.onRefresh).toHaveBeenCalledTimes(1);
+
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   });
 });

@@ -1,6 +1,7 @@
 import AmountInput from './AmountInput';
 import CurrencySelect from './CurrencySelect';
 import SwapButton from './SwapButton';
+import RefreshButton from './RefreshButton';
 import ConversionResult from './ConversionResult';
 import { ExchangeRates } from '@/types';
 
@@ -15,6 +16,8 @@ interface ConverterFormProps {
   onFromCurrencyChange: (value: string) => void;
   onToCurrencyChange: (value: string) => void;
   onSwap: () => void;
+  onRefresh: () => void;
+  loadingRates?: boolean;
 }
 
 export default function ConverterForm({
@@ -28,6 +31,8 @@ export default function ConverterForm({
   onFromCurrencyChange,
   onToCurrencyChange,
   onSwap,
+  onRefresh,
+  loadingRates = false,
 }: ConverterFormProps) {
   const currentRate = exchangeRates && fromCurrency && toCurrency
     ? exchangeRates.rates[toCurrency] / exchangeRates.rates[fromCurrency]
@@ -55,6 +60,8 @@ export default function ConverterForm({
             value={toCurrency}
             onChange={onToCurrencyChange}
           />
+
+          <RefreshButton onClick={onRefresh} loading={loadingRates} />
         </div>
         
         {/* Error message below the row */}

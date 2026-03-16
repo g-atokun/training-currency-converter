@@ -42,5 +42,25 @@ export function useExchangeRates() {
     };
   }, []);
 
-  return { exchangeRates, loading, error };
+  const refresh = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/rates');
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch exchange rates');
+      }
+
+      setExchangeRates(data.data);
+    } catch (err: any) {
+      // Silent fallback — keep existing rates, do not update error state
+      console.error('Error refreshing rates:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { exchangeRates, loading, error, refresh };
 }

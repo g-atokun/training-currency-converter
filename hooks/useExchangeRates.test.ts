@@ -123,4 +123,92 @@ describe('useExchangeRates', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/rates');
     });
   });
+
+  describe('refresh', () => {
+    it('should expose refresh as a function', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        json: async () => ({ success: true, data: {} }),
+      });
+
+      const { result } = renderHook(() => useExchangeRates());
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      expect(typeof result.current.refresh).toBe('function');
+    });
+
+    it('should trigger a new fetch when refresh is called', async () => {
+      const mockRates = { base: 'USD', rates: { USD: 1, EUR: 0.85 }, timestamp: Date.now() };
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({ json: async () => ({ success: true, data: mockRates }) })
+        .mockResolvedValueOnce({ json: async () => ({ success: true, data: mockRates }) });
+
+      const { result } = renderHook(() => useExchangeRates());
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      const fetchCallsBefore = (global.fetch as jest.Mock).mock.calls.length;
+
+      await result.current.refresh();
+
+      expect((global.fetch as jest.Mock).mock.calls.length).toBeGreaterThan(fetchCallsBefore);
+      expect(global.fetch).toHaveBeenLastCalledWith('/api/rates');
+    });
+
+    it('should update exchangeRates on successful refresh', async () => {
+      const initialRates = { base: 'USD', rates: { USD: 1, EUR: 0.85 }, timestamp: 1000 };
+      const updatedRates = { base: 'USD', rates: { USD: 1, EUR: 0.90 }, timestamp: 2000 };
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({ json: async () => ({ success: true, data: initialRates }) })
+        .mockResolvedValueOnce({ json: async () => ({ success: true, data: updatedRates }) });
+
+      const { result } = renderHook(() => useExchangeRates());
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.exchangeRates).toEqual(initialRates);
+
+      await result.current.refresh();
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.exchangeRates).toEqual(updatedRates);
+    });
+
+    it('should not change error state on failed refresh', async () => {
+      const mockRates = { base: 'USD', rates: { USD: 1 }, timestamp: 1000 };
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({ json: async () => ({ success: true, data: mockRates }) })
+        .mockRejectedValueOnce(new Error('Network failure'));
+
+      const { result } = renderHook(() => useExchangeRates());
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.error).toBe(null);
+
+      await result.current.refresh();
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.error).toBe(null);
+    });
+
+    it('should preserve existing exchangeRates on failed refresh', async () => {
+      const mockRates = { base: 'USD', rates: { USD: 1, EUR: 0.85 }, timestamp: 1000 };
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({ json: async () => ({ success: true, data: mockRates }) })
+        .mockRejectedValueOnce(new Error('Network failure'));
+
+      const { result } = renderHook(() => useExchangeRates());
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.exchangeRates).toEqual(mockRates);
+
+      await result.current.refresh();
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      expect(result.current.exchangeRates).toEqual(mockRates);
+    });
+  });
 });

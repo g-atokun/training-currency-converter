@@ -4,7 +4,6 @@ import { useState } from 'react';
 import PageHeader from '@/components/PageHeader';
 import PageFooter from '@/components/PageFooter';
 import ErrorMessage from '@/components/ErrorMessage';
-import LoadingSpinner from '@/components/LoadingSpinner';
 import ConverterForm from '@/components/ConverterForm';
 import ConversionHistory from '@/components/ConversionHistory';
 import { useExchangeRates } from '@/hooks/useExchangeRates';
@@ -14,7 +13,7 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState<boolean>(false);
   
   // Fetch exchange rates
-  const { exchangeRates, loading, error } = useExchangeRates();
+  const { exchangeRates, loading, error, refresh } = useExchangeRates();
 
   // Conversion logic
   const {
@@ -44,10 +43,7 @@ export default function Home() {
         <div className="bg-white rounded-lg shadow-xl p-6 mb-6">
           <ErrorMessage message={error} />
 
-          {loading ? (
-            <LoadingSpinner message="Loading exchange rates..." />
-          ) : (
-            <ConverterForm
+          <ConverterForm
               amount={amount}
               fromCurrency={fromCurrency}
               toCurrency={toCurrency}
@@ -58,8 +54,9 @@ export default function Home() {
               onFromCurrencyChange={setFromCurrency}
               onToCurrencyChange={setToCurrency}
               onSwap={handleSwap}
+              onRefresh={refresh}
+              loadingRates={loading}
             />
-          )}
         </div>
 
         {/* History Section */}
