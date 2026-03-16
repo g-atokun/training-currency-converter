@@ -92,6 +92,38 @@ describe('useConverter', () => {
     });
   });
 
+  it('should swap currencies when from currency is set to the same as to currency', () => {
+    const { result } = renderHook(() => useConverter(mockExchangeRates));
+
+    act(() => {
+      result.current.setFromCurrency('USD');
+      result.current.setToCurrency('EUR');
+    });
+
+    act(() => {
+      result.current.setFromCurrency('EUR');
+    });
+
+    expect(result.current.fromCurrency).toBe('EUR');
+    expect(result.current.toCurrency).toBe('USD');
+  });
+
+  it('should swap currencies when to currency is set to the same as from currency', () => {
+    const { result } = renderHook(() => useConverter(mockExchangeRates));
+
+    act(() => {
+      result.current.setFromCurrency('USD');
+      result.current.setToCurrency('EUR');
+    });
+
+    act(() => {
+      result.current.setToCurrency('USD');
+    });
+
+    expect(result.current.fromCurrency).toBe('EUR');
+    expect(result.current.toCurrency).toBe('USD');
+  });
+
   it('should swap currencies', () => {
     const { result } = renderHook(() => useConverter(mockExchangeRates));
 
