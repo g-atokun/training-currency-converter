@@ -5,6 +5,13 @@ All notable changes to the Currency Converter project will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-17
+
+### Added
+
+- Dynamic copyright notice in `PageFooter` component displaying `© {year} Example Technologies. All rights reserved.`, with the year automatically driven by `new Date().getFullYear()`
+- Unit tests for `PageFooter` covering copyright rendering, dynamic year via fake timers, and `lastUpdated` display
+
 ## [1.0.0] - 2025-10-13
 
 ### Added
@@ -85,17 +92,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Future Enhancements (Planned)
-
-### [1.1.0] - Future
-
-- Add more currencies (20+ total)
-- Historical rate charts
-- Rate alerts and notifications
-- Offline mode with cached rates
-- Dark mode support
-- Export history to CSV
-- Multiple base currency support
-- Calculator mode for complex conversions
 
 ### [1.2.0] - Future
 
